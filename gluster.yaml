@@ -1,0 +1,16 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: slow
+provisioner: kubernetes.io/glusterfs
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
+parameters:
+  resturl: "http://192.168.1.189:8080"
+  restuser: "admin"
+  clusterid: "d6da9fc41fb4897bf2d10cd4d71c1fa5"
+  secretNamespace: "default"
+  secretName: "heketi-secret"
+  volumeType: "none"
+  volumenameprefix: "k8s"
+allowVolumeExpansion: true    

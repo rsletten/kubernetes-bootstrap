@@ -1,0 +1,33 @@
+ports:
+  web:
+    redirectTo: websecure
+additionalArguments:
+  - "--log.level=DEBUG"
+  - "--entrypoints.websecure.http.tls"
+  - "--providers.kubernetesIngress.ingressClass=traefik-cert-manager"
+  - "--ping"
+  - "--pilot.token=cb93467a-5491-46c1-acf8-ef3cb483a503"
+  - "--metrics.prometheus=true"
+  - "--certificatesresolvers.cloudflare.acme.email=rsletten@gmail.com"
+  - "--certificatesresolvers.cloudflare.acme.storage=/data/acme.json"
+  - "--certificatesResolvers.cloudflare.acme.dnsChallenge.provider=cloudflare"
+  - "--certificatesResolvers.cloudflare.acme.dnsChallenge.delayBeforeCheck=0"
+  - "--certificatesresolvers.cloudflare.acme.dnschallenge.resolvers=1.1.1.1:53,8.8.8.8:53"
+globalArguments:
+  - "--global.checknewversion"
+  - "--global.sendanonymoususage=false"
+env:
+  - name: CF_API_EMAIL
+    valueFrom:
+      secretKeyRef:
+        name: cloudflare-api-token-secret
+        key: email
+  - name: CF_DNS_API_TOKEN
+    valueFrom:
+      secretKeyRef:
+        name: cloudflare-api-token-secret
+        key: api-token
+#  - name: CF_API_EMAIL
+#    value: redacted
+#  - name: CF_DNS_API_TOKEN
+#    value: redacted
