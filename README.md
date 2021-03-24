@@ -169,3 +169,11 @@ kubectl apply -f traefik-dashboard-ingress.yaml
 ```bash
 echo | openssl s_client -showcerts -servername traefik.k8s.rsletten.com -connect traefik.k8s.rsletten.com:443 2>/dev/null | openssl x509 -inform pem -text
 ```
+
+## Install the metric server so kubectl top node works
+
+```bash
+wget https://github.com/kubernetes-sigs/metrics-server/releases/download/latest/components.yaml
+
+- --kubelet-insecure-tls # add to Deployment containers args
+```

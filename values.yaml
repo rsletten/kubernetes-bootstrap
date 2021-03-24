@@ -8,6 +8,7 @@ additionalArguments:
   - "--ping"
   - "--pilot.token=cb93467a-5491-46c1-acf8-ef3cb483a503"
   - "--metrics.prometheus=true"
+  - "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
   - "--certificatesresolvers.cloudflare.acme.email=rsletten@gmail.com"
   - "--certificatesresolvers.cloudflare.acme.storage=/data/acme.json"
   - "--certificatesResolvers.cloudflare.acme.dnsChallenge.provider=cloudflare"
