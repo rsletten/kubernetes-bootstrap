@@ -1,6 +1,6 @@
-ports:
-  web:
-    redirectTo: websecure
+#ports:
+#  web:
+#    redirectTo: websecure
 additionalArguments:
   - "--log.level=DEBUG"
   - "--entrypoints.websecure.http.tls"
@@ -8,7 +8,7 @@ additionalArguments:
   - "--ping"
   - "--pilot.token=cb93467a-5491-46c1-acf8-ef3cb483a503"
   - "--metrics.prometheus=true"
-  - "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+  - "--certificatesresolvers.cloudflare.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
   - "--certificatesresolvers.cloudflare.acme.email=rsletten@gmail.com"
   - "--certificatesresolvers.cloudflare.acme.storage=/data/acme.json"
   - "--certificatesResolvers.cloudflare.acme.dnsChallenge.provider=cloudflare"
@@ -18,11 +18,11 @@ globalArguments:
   - "--global.checknewversion"
   - "--global.sendanonymoususage=false"
 env:
-  - name: CF_API_EMAIL
-    valueFrom:
-      secretKeyRef:
-        name: cloudflare-api-token-secret
-        key: email
+  #  - name: CF_API_EMAIL
+  #  valueFrom:
+  #    secretKeyRef:
+  #      name: cloudflare-api-token-secret
+  #      key: email
   - name: CF_DNS_API_TOKEN
     valueFrom:
       secretKeyRef:
