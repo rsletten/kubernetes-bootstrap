@@ -12,7 +12,7 @@ kubeadm init --pod-network-cidr=10.0.0.0/16 (--service-dns-domain=k8s.rsletten.c
 mkdir -p $HOME/.kube
 scp root@k8s1:/etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
-
+# or
 export KUBECONFIG=/etc/kubernetes/admin.conf
 ```
 
@@ -92,7 +92,7 @@ kubectl apply -f gluster.yaml
 kubectl patch storageclass slow -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'\n
 ```
 
-## Install cert-manager
+# cert-manager
 
 ```bash
 # Create the namespace for cert-manager
@@ -105,19 +105,19 @@ kubectl create namespace cert-manager
 kubectl apply -f cloudflare.yaml
 ```
 
-# Add the Jetstack Helm repository
+## Add the Jetstack Helm repository
 
 ```bash
 helm repo add jetstack https://charts.jetstack.io
 ```
 
-# Update your local Helm chart repository cache
+## Update your local Helm chart repository cache
 
 ```bash
 helm repo update
 ```
 
-# Install the cert-manager Helm chart
+## Install the cert-manager Helm chart
 
 ```bash
 helm install \
@@ -173,6 +173,7 @@ kubectl port-forward -n traefik $(kubectl get pods -n traefik --selector "app.ku
 
 wget http://127.0.0.1:9000/dashboard/
 ```
+
 ## Expose the traefik dashboard
 
 ```bash
@@ -186,6 +187,7 @@ echo | openssl s_client -showcerts -servername traefik.k8s.rsletten.com -connect
 ```
 
 # Miscellanous
+
 ## Install the metric server so kubectl top node works
 
 ```bash
@@ -204,5 +206,4 @@ kubectl apply -f kubernetes-dashboard-sa.yaml
 kubectl apply -f kubernetes-dashboard-rbac.yaml
 # get log in token
 kubectl -n kubernetes-dashboard get secret $(kubectl -n kubernetes-dashboard get sa/admin-user -o jsonpath="{.secrets[0].name}") -o go-template="{{.data.token | base64decode}}"
-
 ```
