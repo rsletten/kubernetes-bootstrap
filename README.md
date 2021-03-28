@@ -81,14 +81,6 @@ data:
 EOF
 ```
 
-## Install ingress-nginx (unless you use traefik)
-
-```bash
-wget -q -O -  https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.44.0/deploy/static/provider/baremetal/deploy.yaml | \
-sed -e 's/type: NodePort/type: LoadBalancer/g' | \
-kubectl apply -f -
-```
-
 ## Configure GlusterFS Storage Class
 
 ```bash
@@ -100,7 +92,12 @@ kubectl apply -f gluster.yaml
 kubectl patch storageclass slow -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'\n
 ```
 
-# Traefik v2 + cert-manager
+## Install cert-manager
+
+```bash
+# Create the namespace for cert-manager
+kubectl create namespace cert-manager
+```
 
 ## Create secret
 
@@ -108,37 +105,21 @@ kubectl patch storageclass slow -p '{"metadata": {"annotations":{"storageclass.k
 kubectl apply -f cloudflare.yaml
 ```
 
-## Install traefik v2
-
-```bash
-helm repo add traefik https://containous.github.io/traefik-helm-chart
-helm repo update
-
-kubectl create namespace traefik
-helm install --namespace traefik traefik traefik/traefik --values values.yaml
-```
-
-## Access to the dashboard
-
-```bash
-kubectl port-forward -n traefik $(kubectl get pods -n traefik --selector "app.kubernetes.io/name=traefik" --output=name) 9000:9000
-
-wget http://127.0.0.1:9000/dashboard/
-```
-
-## Install cert-manager
-
-```bash
-# Create the namespace for cert-manager
-kubectl create namespace cert-manager
-
 # Add the Jetstack Helm repository
+
+```bash
 helm repo add jetstack https://charts.jetstack.io
+```
 
 # Update your local Helm chart repository cache
+
+```bash
 helm repo update
+```
 
 # Install the cert-manager Helm chart
+
+```bash
 helm install \
   cert-manager jetstack/cert-manager \
   --namespace cert-manager \
@@ -155,13 +136,47 @@ kubectl get pods --namespace cert-manager
 ## Create cluster issuer
 
 ```bash
-kubectl apply -f cert-manager/cluster-issuer.yaml
+kubectl apply -f cluster-issuer-staging.yaml
+kubectl apply -f cluster-issuer-prod.yaml
 ```
 
+# Ingress Option 1 - Install ingress-nginx
+
+```bash
+wget -q -O -  https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.44.0/deploy/static/provider/baremetal/deploy.yaml | \
+sed -e 's/type: NodePort/type: LoadBalancer/g' | \
+kubectl apply -f -
+```
+
+# Ingress Option 2 - Install Traefik v2
+
+## Create secret
+
+```bash
+kubectl apply -f cloudflare.yaml
+```
+
+## Install traefik v2
+
+```bash
+helm repo add traefik https://containous.github.io/traefik-helm-chart
+helm repo update
+
+kubectl create namespace traefik
+helm install --namespace traefik traefik traefik/traefik --values treafik-values.yaml
+```
+
+## Access to the dashboard
+
+```bash
+kubectl port-forward -n traefik $(kubectl get pods -n traefik --selector "app.kubernetes.io/name=traefik" --output=name) 9000:9000
+
+wget http://127.0.0.1:9000/dashboard/
+```
 ## Expose the traefik dashboard
 
 ```bash
-kubectl apply -f traefik-dashboard-ingress.yaml
+kubectl apply -f traefik-dashboard-ingress-tls.yaml
 ```
 
 ## Check the certificate issuer with the command:
@@ -170,10 +185,24 @@ kubectl apply -f traefik-dashboard-ingress.yaml
 echo | openssl s_client -showcerts -servername traefik.k8s.rsletten.com -connect traefik.k8s.rsletten.com:443 2>/dev/null | openssl x509 -inform pem -text
 ```
 
+# Miscellanous
 ## Install the metric server so kubectl top node works
 
 ```bash
 wget https://github.com/kubernetes-sigs/metrics-server/releases/download/latest/components.yaml
 
 - --kubelet-insecure-tls # add to Deployment containers args
+```
+
+## Install kubernetes-dashboard
+
+```bash
+helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
+helm repo update
+helm install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard --values kubernetes-dashboard-values.yaml
+kubectl apply -f kubernetes-dashboard-sa.yaml
+kubectl apply -f kubernetes-dashboard-rbac.yaml
+# get log in token
+kubectl -n kubernetes-dashboard get secret $(kubectl -n kubernetes-dashboard get sa/admin-user -o jsonpath="{.secrets[0].name}") -o go-template="{{.data.token | base64decode}}"
+
 ```
