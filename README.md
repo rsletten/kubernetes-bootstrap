@@ -81,7 +81,7 @@ data:
 EOF
 ```
 
-## Configure GlusterFS Storage Class
+## Configure GlusterFS Storage Class - absolute shit, do not use
 
 ```bash
 # create secret
@@ -92,32 +92,68 @@ kubectl apply -f gluster.yaml
 kubectl patch storageclass slow -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'\n
 ```
 
-# cert-manager
+## Configure rook-ceph
+
+```bash
+# prereqs
+kubectl apply -f crds.yaml -f common.yaml -f operator.yaml
+kubectl apply -f cluster.yaml
+kubectl apply -f storageclass.yaml
+kubectl apply -f toolbox.yaml
+kubectl apply -f rook-dashboard-tls.yaml
+# status
+kubectl get CephCluster -n rook-ceph
+NAME        DATADIRHOSTPATH   MONCOUNT   AGE     PHASE   MESSAGE                        HEALTH
+rook-ceph   /var/lib/rook     3          6h36m   Ready   Cluster created successfully   HEALTH_OK
+#
+kubectl  exec -n rook-ceph -it $(kubectl get pod -l "app=rook-ceph-tools" --namespace=rook-ceph -o jsonpath='{.items[0].metadata.name}') -- ceph status
+  cluster:
+    id:     98c9d46b-0697-46da-bc85-0acf4828aaa8
+    health: HEALTH_OK
+
+  services:
+    mon: 3 daemons, quorum a,b,c (age 4h)
+    mgr: a(active, since 4h)
+    osd: 4 osds: 4 up (since 4h), 4 in (since 5h)
+
+  data:
+    pools:   2 pools, 33 pgs
+    objects: 4 objects, 36 B
+    usage:   4.0 GiB used, 796 GiB / 800 GiB avail
+    pgs:     33 active+clean
+
+  io:
+    client:   14 KiB/s rd, 16 op/s rd, 0 op/s wr
+# re-deploy the operator
+kubectl -n rook-ceph delete pod -l app=rook-ceph-operator
+```
+
+## cert-manager
 
 ```bash
 # Create the namespace for cert-manager
 kubectl create namespace cert-manager
 ```
 
-## Create secret
+### Create secret
 
 ```bash
 kubectl apply -f cloudflare.yaml
 ```
 
-## Add the Jetstack Helm repository
+### Add the Jetstack Helm repository
 
 ```bash
 helm repo add jetstack https://charts.jetstack.io
 ```
 
-## Update your local Helm chart repository cache
+### Update your local Helm chart repository cache
 
 ```bash
 helm repo update
 ```
 
-## Install the cert-manager Helm chart
+### Install the cert-manager Helm chart
 
 ```bash
 helm install \
@@ -127,20 +163,20 @@ helm install \
   --set installCRDs=true
 ```
 
-## Verifying the installation
+### Verifying the installation
 
 ```bash
 kubectl get pods --namespace cert-manager
 ```
 
-## Create cluster issuer
+### Create cluster issuer
 
 ```bash
 kubectl apply -f cluster-issuer-staging.yaml
 kubectl apply -f cluster-issuer-prod.yaml
 ```
 
-# Ingress Option 1 - Install ingress-nginx
+## Ingress Option 1 - Install ingress-nginx
 
 ```bash
 wget -q -O -  https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.44.0/deploy/static/provider/baremetal/deploy.yaml | \
@@ -148,45 +184,21 @@ sed -e 's/type: NodePort/type: LoadBalancer/g' | \
 kubectl apply -f -
 ```
 
-# Ingress Option 2 - Install Traefik v2
+## Ingress Option 2 - Install Traefik v2
 
-## Create secret
-
-```bash
-kubectl apply -f cloudflare.yaml
-```
-
-## Install traefik v2
-
-```bash
-helm repo add traefik https://containous.github.io/traefik-helm-chart
-helm repo update
-
-kubectl create namespace traefik
-helm install --namespace traefik traefik traefik/traefik --values treafik-values.yaml
-```
-
-## Access to the dashboard
-
-```bash
-kubectl port-forward -n traefik $(kubectl get pods -n traefik --selector "app.kubernetes.io/name=traefik" --output=name) 9000:9000
-
-wget http://127.0.0.1:9000/dashboard/
-```
-
-## Expose the traefik dashboard
-
-```bash
-kubectl apply -f traefik-dashboard-ingress-tls.yaml
-```
-
-## Check the certificate issuer with the command:
-
-```bash
-echo | openssl s_client -showcerts -servername traefik.k8s.rsletten.com -connect traefik.k8s.rsletten.com:443 2>/dev/null | openssl x509 -inform pem -text
-```
+See [Traefik.md](Traefik.md)
 
 # Miscellanous
+
+## Install Prometheus
+
+```bash
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+kubectl create ns monitoring
+helm install -n monitoring prometheus-community/kube-prometheus-stack --generate-name
+kubectl apply -f prometheus/grafana-ingress-tls.yaml
+```
 
 ## Install the metric server so kubectl top node works
 
