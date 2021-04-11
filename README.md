@@ -197,3 +197,9 @@ export GITHUB_TOKEN=...
 flux bootstrap github --owner=rsletten --repository=k8s.rsletten.com --branch=main --path=./cluster/k8s.rsletten.com --personal
 ```
 
+## install portainer
+
+```bash
+kubectl apply -n portainer -f https://raw.githubusercontent.com/portainer/k8s/master/deploy/manifests/portainer/portainer.yaml
+kubectl apply -f misc/portainer-ingress-tls.yaml
+```
