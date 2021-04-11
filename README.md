@@ -57,9 +57,9 @@ kubectl label node k8s4.rsletten.com node-role.kubernetes.io/worker=worker
 kubectl get configmap kube-proxy -n kube-system -o yaml | sed -e "s/strictARP: false/strictARP: true/" | kubectl apply -f - -n kube-system
 
 # apply to manifests
-kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.9.5/manifests/namespace.yaml
+kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.9.6/manifests/namespace.yaml
 
-kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.9.5/manifests/metallb.yaml
+kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.9.6/manifests/metallb.yaml
 
 # create secret
 kubectl create secret generic -n metallb-system memberlist --from-literal=secretkey="$(openssl rand -base64 128)"
@@ -133,45 +133,15 @@ kubectl -n rook-ceph delete pod -l app=rook-ceph-operator
 ```bash
 # Create the namespace for cert-manager
 kubectl create namespace cert-manager
-```
-
-### Create secret
-
-```bash
 kubectl apply -f cloudflare.yaml
-```
-
-### Add the Jetstack Helm repository
-
-```bash
 helm repo add jetstack https://charts.jetstack.io
-```
-
-### Update your local Helm chart repository cache
-
-```bash
 helm repo update
-```
-
-### Install the cert-manager Helm chart
-
-```bash
 helm install \
   cert-manager jetstack/cert-manager \
   --namespace cert-manager \
   --version v1.2.0 \
   --set installCRDs=true
-```
-
-### Verifying the installation
-
-```bash
 kubectl get pods --namespace cert-manager
-```
-
-### Create cluster issuer
-
-```bash
 kubectl apply -f cluster-issuer-staging.yaml
 kubectl apply -f cluster-issuer-prod.yaml
 ```
@@ -179,7 +149,7 @@ kubectl apply -f cluster-issuer-prod.yaml
 ## Ingress Option 1 - Install ingress-nginx
 
 ```bash
-wget -q -O -  https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.44.0/deploy/static/provider/baremetal/deploy.yaml | \
+wget -q -O -  https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.45.0/deploy/static/provider/baremetal/deploy.yaml | \
 sed -e 's/type: NodePort/type: LoadBalancer/g' | \
 kubectl apply -f -
 ```
@@ -219,3 +189,11 @@ kubectl apply -f kubernetes-dashboard-rbac.yaml
 # get log in token
 kubectl -n kubernetes-dashboard get secret $(kubectl -n kubernetes-dashboard get sa/admin-user -o jsonpath="{.secrets[0].name}") -o go-template="{{.data.token | base64decode}}"
 ```
+
+## Install flux gitops
+
+```bash
+export GITHUB_TOKEN=...
+flux bootstrap github --owner=rsletten --repository=k8s.rsletten.com --branch=main --path=./cluster/k8s.rsletten.com --personal
+```
+

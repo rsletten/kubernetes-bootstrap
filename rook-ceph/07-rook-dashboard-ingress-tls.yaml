@@ -8,13 +8,13 @@ metadata:
     kubernetes.io/ingress.class: nginx
     kubernetes.io/tls-acme: 'true'
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
-    cert-manager.io/cluster-issuer: letsencrypt-staging
+    cert-manager.io/cluster-issuer: letsencrypt-prod
   labels:
     app.kubernetes.io/instance: rook-ceph-mgr-dashboard
     app.kubernetes.io/name: rook-ceph-mgr-dashboard
 spec:
   rules:
-  - host: rook.k8s.rsletten.com
+  - host: ceph.k8s.rsletten.com
     http:
       paths:
       - path: /
@@ -26,5 +26,5 @@ spec:
               number: 8443
   tls:
   - hosts:
-    - rook.k8s.rsletten.com
+    - ceph.k8s.rsletten.com
     secretName: rook-cert
