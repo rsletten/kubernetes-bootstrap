@@ -1,5 +1,7 @@
 # Bootstrapping k8s using kubeadmin
 
+![k8s cluster](images/IMG_2465.png)
+
 ## Initialize the cluster
 
 ```bash
@@ -139,7 +141,7 @@ helm repo update
 helm install \
   cert-manager jetstack/cert-manager \
   --namespace cert-manager \
-  --version v1.2.0 \
+  --version v1.3.1 \
   --set installCRDs=true
 kubectl get pods --namespace cert-manager
 kubectl apply -f cluster-issuer-staging.yaml
@@ -149,7 +151,7 @@ kubectl apply -f cluster-issuer-prod.yaml
 ## Ingress Option 1 - Install ingress-nginx
 
 ```bash
-wget -q -O -  https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.45.0/deploy/static/provider/baremetal/deploy.yaml | \
+wget -q -O -  https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.46.0/deploy/static/provider/baremetal/deploy.yaml | \
 sed -e 's/type: NodePort/type: LoadBalancer/g' | \
 kubectl apply -f -
 ```
