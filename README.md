@@ -141,7 +141,7 @@ helm repo update
 helm install \
   cert-manager jetstack/cert-manager \
   --namespace cert-manager \
-  --version v1.3.1 \
+  --version v1.4.0 \
   --set installCRDs=true
 kubectl get pods --namespace cert-manager
 kubectl apply -f cluster-issuer-staging.yaml
