@@ -151,7 +151,7 @@ kubectl apply -f cluster-issuer-prod.yaml
 ## Ingress Option 1 - Install ingress-nginx
 
 ```bash
-wget -q -O -  https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.46.0/deploy/static/provider/baremetal/deploy.yaml | \
+wget -q -O -  https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.47.0/deploy/static/provider/baremetal/deploy.yaml | \
 sed -e 's/type: NodePort/type: LoadBalancer/g' | \
 kubectl apply -f -
 ```
