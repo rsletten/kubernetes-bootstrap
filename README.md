@@ -59,9 +59,9 @@ kubectl label node k8s4.rsletten.com node-role.kubernetes.io/worker=worker
 kubectl get configmap kube-proxy -n kube-system -o yaml | sed -e "s/strictARP: false/strictARP: true/" | kubectl apply -f - -n kube-system
 
 # apply to manifests
-kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.9.6/manifests/namespace.yaml
+kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.10.2/manifests/namespace.yaml
 
-kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.9.6/manifests/metallb.yaml
+kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.10.2/manifests/metallb.yaml
 
 # create secret
 kubectl create secret generic -n metallb-system memberlist --from-literal=secretkey="$(openssl rand -base64 128)"
@@ -141,7 +141,7 @@ helm repo update
 helm install \
   cert-manager jetstack/cert-manager \
   --namespace cert-manager \
-  --version v1.3.1 \
+  --version v1.4.0 \
   --set installCRDs=true
 kubectl get pods --namespace cert-manager
 kubectl apply -f cluster-issuer-staging.yaml
@@ -151,7 +151,7 @@ kubectl apply -f cluster-issuer-prod.yaml
 ## Ingress Option 1 - Install ingress-nginx
 
 ```bash
-wget -q -O -  https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.46.0/deploy/static/provider/baremetal/deploy.yaml | \
+wget -q -O -  https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.47.0/deploy/static/provider/baremetal/deploy.yaml | \
 sed -e 's/type: NodePort/type: LoadBalancer/g' | \
 kubectl apply -f -
 ```
