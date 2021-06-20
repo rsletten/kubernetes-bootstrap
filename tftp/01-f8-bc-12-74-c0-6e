@@ -1,0 +1,20 @@
+default vesamenu.c32
+prompt 0
+timeout 100
+
+label local
+  menu label Boot from ^local drive
+  localboot 0xffff
+  menu default
+label linux
+  menu label ^Install system
+  kernel images/RHEL-8.3/vmlinuz
+  append initrd=images/RHEL-8.3/initrd.img ip=dhcp ks=http://192.168.1.222/kickstart/k8s1.cfg
+label vesa
+  menu label Install system with ^basic video driver
+  kernel images/RHEL-8.3/vmlinuz
+  append initrd=images/RHEL-8.3/initrd.img ip=dhcp inst.xdriver=vesa nomodeset inst.repo=http://192.168.1.222/rhel8/
+label rescue
+  menu label ^Rescue installed system
+  kernel images/RHEL-8.3/vmlinuz
+  append initrd=images/RHEL-8.3/initrd.img rescue
