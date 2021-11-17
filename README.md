@@ -58,10 +58,10 @@ kubectl label node k8s4.rsletten.com node-role.kubernetes.io/worker=worker
 #set strict ARP
 kubectl get configmap kube-proxy -n kube-system -o yaml | sed -e "s/strictARP: false/strictARP: true/" | kubectl apply -f - -n kube-system
 
-# apply to manifests
-kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.10.2/manifests/namespace.yaml
+# apply manifests
+kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.11.0/manifests/namespace.yaml
 
-kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.10.2/manifests/metallb.yaml
+kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.11.0/manifests/metallb.yaml
 
 # create secret
 kubectl create secret generic -n metallb-system memberlist --from-literal=secretkey="$(openssl rand -base64 128)"
@@ -81,17 +81,6 @@ data:
       addresses:
       - 192.168.1.250-192.168.1.250
 EOF
-```
-
-## Configure GlusterFS Storage Class - absolute shit, do not use
-
-```bash
-# create secret
-kubectl apply -f gluster-secret.yaml
-# create storage class
-kubectl apply -f gluster.yaml
-# set to default
-kubectl patch storageclass slow -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'\n
 ```
 
 ## Configure rook-ceph
@@ -141,7 +130,7 @@ helm repo update
 helm install \
   cert-manager jetstack/cert-manager \
   --namespace cert-manager \
-  --version v1.4.0 \
+  --version v1.6.1 \
   --set installCRDs=true
 kubectl get pods --namespace cert-manager
 kubectl apply -f cluster-issuer-staging.yaml
@@ -151,7 +140,7 @@ kubectl apply -f cluster-issuer-prod.yaml
 ## Ingress Option 1 - Install ingress-nginx
 
 ```bash
-wget -q -O -  https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.47.0/deploy/static/provider/baremetal/deploy.yaml | \
+wget -q -O -  https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.0.5/deploy/static/provider/baremetal/deploy.yaml | \
 sed -e 's/type: NodePort/type: LoadBalancer/g' | \
 kubectl apply -f -
 ```
