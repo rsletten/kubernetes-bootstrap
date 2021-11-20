@@ -1,21 +1,11 @@
-#################################################################################################################
-# Define the settings for the rook-ceph cluster with common settings for a production cluster.
-# All nodes with available raw devices will be used for the Ceph cluster. At least three nodes are required
-# in this example. See the documentation for more details on storage settings available.
-
-# For example, to create the cluster:
-#   kubectl create -f crds.yaml -f common.yaml -f operator.yaml
-#   kubectl create -f cluster.yaml
-#################################################################################################################
-
 apiVersion: ceph.rook.io/v1
 kind: CephCluster
 metadata:
   name: rook-ceph
-  namespace: rook-ceph 
+  namespace: rook-ceph
 spec:
   cephVersion:
-    image: ceph/ceph:v15.2.9
+    image: quay.io/ceph/ceph:v16.2.6
     allowUnsupported: false
   dataDirHostPath: /var/lib/rook
   skipUpgradeChecks: false
@@ -25,9 +15,10 @@ spec:
     count: 3
     allowMultiplePerNode: false
   mgr:
+    count: 1
     modules:
-    - name: pg_autoscaler
-      enabled: true
+      - name: pg_autoscaler
+        enabled: true
   dashboard:
     enabled: true
     ssl: true
@@ -53,8 +44,9 @@ spec:
     useAllDevices: true
     deviceFilter: "sda2"
     config:
+    onlyApplyOSDPlacement: false
   disruptionManagement:
-    managePodBudgets: false
+    managePodBudgets: true
     osdMaintenanceTimeout: 30
     pgHealthCheckTimeout: 0
     manageMachineDisruptionBudgets: false
