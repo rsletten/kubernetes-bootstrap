@@ -1,0 +1,21 @@
+default menu.c32
+prompt 0
+timeout 600
+
+
+label local
+  menu label Boot from ^local drive
+  menu default
+  localboot 0xffff
+label linux
+  menu label Install ^Kubernetes
+  kernel images/RHEL-8.5/vmlinuz
+  append initrd=images/RHEL-8.5/initrd.img ip=dhcp inst.ks=http://192.168.1.223/kickstart/k8s4.cfg
+label vesa
+  menu label Install system with ^basic video driver
+  kernel images/RHEL-8.5/vmlinuz
+  append initrd=images/RHEL-8.5/initrd.img ip=dhcp inst.xdriver=vesa nomodeset inst.repo=http://192.168.1.223/rhel8/
+label rescue
+  menu label ^Rescue installed system
+  kernel images/RHEL-8.5/vmlinuz
+  append initrd=images/RHEL-8.5/initrd.img rescue
