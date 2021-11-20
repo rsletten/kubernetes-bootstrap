@@ -21,7 +21,11 @@ export KUBECONFIG=/etc/kubernetes/admin.conf
 ## Install Calico Networking
 
 ```bash
-kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
+kubectl create -f https://docs.projectcalico.org/manifests/tigera-operator.yaml
+
+wget -q -O - https://docs.projectcalico.org/manifests/custom-resources.yaml | \
+sed -e 's/192.168.0.0/10.0.0.0/g' | \
+kubectl apply -f -
 
 kubectl taint nodes --all node-role.kubernetes.io/master-
 
