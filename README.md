@@ -139,12 +139,14 @@ helm install \
 kubectl get pods --namespace cert-manager
 kubectl apply -f cluster-issuer-staging.yaml
 kubectl apply -f cluster-issuer-prod.yaml
+
+add - --dns01-self-check-nameservers="8.8.8.8:53" to spec.template.spec.containers.args
 ```
 
 ## Ingress Option 1 - Install ingress-nginx
 
 ```bash
-wget -q -O -  https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.0.5/deploy/static/provider/baremetal/deploy.yaml | \
+wget -q -O -  https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.1.0/deploy/static/provider/baremetal/deploy.yaml | \
 sed -e 's/type: NodePort/type: LoadBalancer/g' | \
 kubectl apply -f -
 ```
@@ -168,7 +170,7 @@ kubectl apply -f prometheus/grafana-ingress-tls.yaml
 ## Install the metric server so kubectl top node works
 
 ```bash
-wget https://github.com/kubernetes-sigs/metrics-server/releases/download/latest/components.yaml
+wget https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
 
 - --kubelet-insecure-tls # add to Deployment containers args
 ```
@@ -178,7 +180,7 @@ wget https://github.com/kubernetes-sigs/metrics-server/releases/download/latest/
 ```bash
 helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
 helm repo update
-helm install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard --values kubernetes-dashboard-values.yaml
+helm install -n kubernetes-dashboard kubenetes-dashboard kubernetes-dashboard/kubernetes-dashboard --values ./01-kubernetes-dashboard-values.yaml
 kubectl apply -f kubernetes-dashboard-sa.yaml
 kubectl apply -f kubernetes-dashboard-rbac.yaml
 # get log in token
